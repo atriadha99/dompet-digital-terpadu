@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="id" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dompet Digital Terpadu</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        .dark body {
+            background-color: #0f172a; /* bg-gray-900 */
+        }
+        /* Style untuk scrollbar agar lebih minimalis */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Animasi fade-in sederhana */
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* QR Scanner Animation */
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+            box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(calc(100% - 3px)); }
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-4">
+
+    <!-- Kontainer utama menyerupai tampilan ponsel -->
+    <div class="w-full max-w-sm mx-auto bg-white dark:bg-black rounded-3xl shadow-2xl overflow-hidden ring-4 ring-gray-200 dark:ring-gray-800">
+        <div id="app-container" class="h-[700px] flex flex-col">
+
+            <!-- PAGE: LOGIN -->
+            <div id="login-page" class="flex flex-col h-full p-8 fade-in">
+                 <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Selamat Datang!</h2>
+                 <p class="text-center text-gray-500 dark:text-gray-400 mb-8">Masuk untuk melanjutkan ke dompet Anda.</p>
+                 <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
+                    <span class="block sm:inline">Nama pengguna atau kata sandi salah.</span>
+                 </div>
+                 <form id="login-form">
+                     <div class="mb-4">
+                         <label for="login-username" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Nama Pengguna</label>
+                         <input type="text" id="login-username" value="budi" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                     </div>
+                     <div class="mb-6">
+                         <label for="login-password" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Kata Sandi</label>
+                         <input type="password" id="login-password" value="password123" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                     </div>
+                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-all">
+                         Masuk
+                     </button>
+                 </form>
+                 <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+                     Belum punya akun? <a href="#" id="goto-register" class="font-bold text-blue-600 hover:text-blue-700">Daftar di sini</a>
+                 </p>
+            </div>
+
+            <!-- PAGE: REGISTER -->
+            <div id="register-page" class="hidden flex-col h-full p-8 fade-in">
+                 <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Buat Akun Baru</h2>
+                 <p class="text-center text-gray-500 dark:text-gray-400 mb-8">Isi data di bawah untuk mendaftar.</p>
+                 <div id="register-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
+                    <span class="block sm:inline">Nama pengguna sudah digunakan.</span>
+                 </div>
+                 <form id="register-form">
+                     <div class="mb-4">
+                         <label for="register-username" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Nama Pengguna</label>
+                         <input type="text" id="register-username" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                     </div>
+                     <div class="mb-6">
+                         <label for="register-password" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Kata Sandi</label>
+                         <input type="password" id="register-password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                     </div>
+                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-all">
+                         Daftar
+                     </button>
+                 </form>
+                 <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+                     Sudah punya akun? <a href="#" id="goto-login" class="font-bold text-blue-600 hover:text-blue-700">Masuk di sini</a>
+                 </p>
+            </div>
+
+            <!-- MAIN APP VIEW (DASHBOARD, ETC) -->
+            <div id="main-app-view" class="hidden flex-col h-full">
+                <div id="page-content" class="flex-grow overflow-y-auto no-scrollbar">
+                    <!-- Dynamic content will be injected here -->
+                </div>
+                <!-- Navigasi Bawah -->
+                <footer class="sticky bottom-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-800 p-4">
+                    <div class="grid grid-cols-4 gap-4 text-center text-gray-500 dark:text-gray-400">
+                        <a href="#" class="nav-link" data-page="dashboard">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-1 h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                           <span class="text-xs font-medium">Beranda</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="qris">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-1 h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+                            <span class="text-xs font-medium">Bayar</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="history">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-1 h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                           <span class="text-xs font-medium">Riwayat</span>
+                        </a>
+                        <a href="#" class="nav-link" data-page="profile">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-1 h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M17 19v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path></svg>
+                            <span class="text-xs font-medium">Profil</span>
+                        </a>
+                    </div>
+                </footer>
+            </div>
+            
+             <!-- Modal Konfirmasi Pembayaran QRIS -->
+            <div id="qris-confirm-modal" class="hidden absolute inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl w-full max-w-xs text-center">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Konfirmasi Pembayaran</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Anda akan membayar ke <strong id="qris-merchant-name"></strong>.</p>
+                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-500 my-4" id="qris-payment-amount"></p>
+                    <canvas id="qris-code-canvas" class="mx-auto rounded-lg"></canvas>
+                    <p class="text-xs text-gray-400 mt-2">Tunjukkan QR ini ke kasir</p>
+                    <div class="flex gap-3 mt-6">
+                        <button id="qris-cancel-btn" class="w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-lg">Batal</button>
+                        <button id="qris-confirm-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Bayar</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Page Templates -->
+    <template id="dashboard-template">
+        <div class="fade-in">
+            <header class="flex justify-between items-center p-5">
+                <div class="text-left">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Selamat datang,</p>
+                    <h1 id="dashboard-username" class="font-bold text-xl text-gray-900 dark:text-white"></h1>
+                </div>
+                 <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center cursor-pointer nav-link" data-page="profile">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+            </header>
+            <main class="px-5 flex-grow">
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-lg mb-6">
+                    <p class="text-sm opacity-80">Total Saldo Terpadu</p>
+                    <p id="total-balance" class="text-4xl font-bold mt-2 mb-4">Memuat...</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="bg-white/20 hover:bg-white/30 transition-all text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Tambah Saldo
+                        </button>
+                        <button class="bg-white/20 hover:bg-white/30 transition-all text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 nav-link" data-page="qris">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            Transfer
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <h2 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-3">Akun Terhubung</h2>
+                    <div id="linked-accounts" class="space-y-3"></div>
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-3">Transaksi Terakhir</h2>
+                    <div id="recent-transactions" class="space-y-3"></div>
+                </div>
+            </main>
+        </div>
+    </template>
+
+    <template id="profile-template">
+        <div class="flex flex-col h-full fade-in">
+            <header class="p-5 flex items-center gap-4 border-b dark:border-gray-800">
+                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Profil & Pengaturan</h2>
+            </header>
+            <main class="flex-grow p-5 text-center">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <h3 id="profile-page-username" class="text-2xl font-bold text-gray-900 dark:text-white"></h3>
+                <p id="profile-page-email" class="text-gray-500 dark:text-gray-400"></p>
+                <p id="profile-page-join-date" class="text-sm text-gray-400 dark:text-gray-500 mt-1"></p>
+                
+                <div class="mt-8 text-left space-y-4">
+                    <div class="w-full flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <span class="font-medium text-gray-700 dark:text-gray-300">Mode Gelap</span>
+                        <label for="dark-mode-toggle" class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" value="" id="dark-mode-toggle" class="sr-only peer">
+                          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="logout-button" class="w-full mt-8 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-all">
+                    Keluar
+                </button>
+            </main>
+        </div>
+    </template>
+    
+    <template id="history-template">
+        <div class="flex flex-col h-full fade-in">
+            <header class="p-5 border-b dark:border-gray-800">
+                 <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center">Riwayat Transaksi</h2>
+            </header>
+            <main id="full-history-list" class="flex-grow p-5 space-y-3 overflow-y-auto no-scrollbar">
+                <!-- Transaction history will be populated here -->
+            </main>
+        </div>
+    </template>
+    
+    <template id="qris-template">
+        <div class="flex flex-col h-full fade-in">
+            <header class="p-5 border-b dark:border-gray-800">
+                 <h2 class="text-xl font-bold text-gray-900 dark:text-white text-center">Bayar dengan QRIS</h2>
+            </header>
+            <main class="flex-grow p-5 flex flex-col justify-center items-center gap-6">
+                <div class="w-64 h-64 bg-gray-800 rounded-2xl relative overflow-hidden shadow-inner">
+                    <div class="scanner-line"></div>
+                </div>
+                 <p class="text-center text-gray-500 dark:text-gray-400">Posisikan kode QR di dalam area</p>
+                <button id="simulate-scan-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">
+                    Simulasikan Pemindaian
+                </button>
+            </main>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- App State ---
+            let currentUser = null;
+
+            // --- DOM Elements ---
+            const appContainer = document.getElementById('app-container');
+            const authPages = {
+                login: document.getElementById('login-page'),
+                register: document.getElementById('register-page')
+            };
+            const mainAppView = document.getElementById('main-app-view');
+            const pageContent = document.getElementById('page-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            // --- Templates ---
+            const templates = {
+                dashboard: document.getElementById('dashboard-template'),
+                profile: document.getElementById('profile-template'),
+                history: document.getElementById('history-template'),
+                qris: document.getElementById('qris-template')
+            };
+
+            // --- Forms ---
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            // --- Links & Buttons ---
+            const gotoRegisterLink = document.getElementById('goto-register');
+            const gotoLoginLink = document.getElementById('goto-login');
+            
+            // --- Error Messages ---
+            const loginError = document.getElementById('login-error');
+            const registerError = document.getElementById('register-error');
+            
+            // --- QRIS Modal ---
+            const qrisModal = document.getElementById('qris-confirm-modal');
+            const qrisConfirmBtn = document.getElementById('qris-confirm-btn');
+            const qrisCancelBtn = document.getElementById('qris-cancel-btn');
+
+            // --- Helper Functions ---
+            const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+
+            // --- Local Storage & Data API Simulation ---
+            function getMasterData() {
+                return JSON.parse(localStorage.getItem('digital_wallet_master_data')) || [];
+            }
+            function saveMasterData(data) {
+                localStorage.setItem('digital_wallet_master_data', JSON.stringify(data));
+            }
+            function getLoggedInUser() {
+                return sessionStorage.getItem('digital_wallet_loggedInUser');
+            }
+            function setLoggedInUser(username) {
+                sessionStorage.setItem('digital_wallet_loggedInUser', username);
+            }
+            function logoutUser() {
+                sessionStorage.removeItem('digital_wallet_loggedInUser');
+                currentUser = null;
+            }
+             // Initialize with a default user if none exist
+            function initDefaultUser() {
+                const data = getMasterData();
+                if (!data.find(u => u.username === 'budi')) {
+                    data.push({
+                        username: 'budi',
+                        password: 'password123',
+                        profile: {
+                            email: 'budi.santoso@email.com',
+                            joinDate: new Date().toISOString().split('T')[0]
+                        },
+                        accounts: [
+                            { id: 1, name: 'Bank Central Asia', type: 'Rekening Bank', balance: 5250000, logoColor: 'bg-sky-500' },
+                            { id: 2, name: 'GoPay', type: 'E-Wallet', balance: 785000, logoColor: 'bg-blue-500' },
+                            { id: 3, name: 'OVO', type: 'E-Wallet', balance: 320000, logoColor: 'bg-purple-500' },
+                            { id: 4, name: 'Mandiri E-Money', type: 'Kartu Elektronik', balance: 155000, logoColor: 'bg-yellow-400' },
+                        ],
+                        transactions: [
+                             { id: 1, name: 'Bayar Tagihan Listrik', date: new Date(Date.now() - 86400000 * 0.2).toISOString(), amount: -350000, type: 'expense' },
+                             { id: 2, name: 'Top up dari BCA', date: new Date(Date.now() - 86400000 * 1).toISOString(), amount: 500000, type: 'income' },
+                             { id: 3, name: 'Belanja di Supermarket', date: new Date(Date.now() - 86400000 * 2).toISOString(), amount: -175500, type: 'expense' }
+                        ]
+                    });
+                    saveMasterData(data);
+                }
+            }
+
+            // --- Dark Mode ---
+            function setupDarkMode() {
+                const toggle = document.querySelector('#dark-mode-toggle');
+                const html = document.documentElement;
+                
+                // Load preference
+                const isDark = localStorage.getItem('wallet_theme') === 'dark';
+                toggle.checked = isDark;
+                if (isDark) html.classList.add('dark');
+                else html.classList.remove('dark');
+
+                // Listen for changes
+                toggle.addEventListener('change', () => {
+                    if (toggle.checked) {
+                        html.classList.add('dark');
+                        localStorage.setItem('wallet_theme', 'dark');
+                    } else {
+                        html.classList.remove('dark');
+                        localStorage.setItem('wallet_theme', 'light');
+                    }
+                });
+            }
+
+            // --- Page Rendering Logic ---
+            function showAuthPage(pageName) {
+                Object.values(authPages).forEach(p => p.style.display = 'none');
+                mainAppView.style.display = 'none';
+                authPages[pageName].style.display = 'flex';
+            }
+
+            function showAppPage(pageName) {
+                authPages.login.style.display = 'none';
+                authPages.register.style.display = 'none';
+                mainAppView.style.display = 'flex';
+                
+                const template = templates[pageName].content.cloneNode(true);
+                pageContent.innerHTML = '';
+                pageContent.appendChild(template);
+                
+                // Post-render setup
+                if (pageName === 'dashboard') populateDashboard();
+                if (pageName === 'profile') populateProfile();
+                if (pageName === 'history') populateHistory();
+                if (pageName === 'qris') setupQrisPage();
+                
+                // Re-bind nav links within the new content
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const pageId = link.dataset.page;
+                        showAppPage(pageId);
+                    });
+                });
+                
+                // Update active nav link style
+                navLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'dark:text-blue-500');
+                    if (link.dataset.page === pageName) {
+                        link.classList.add('text-blue-600', 'dark:text-blue-500');
+                    }
+                });
+            }
+
+            // --- Page Population Functions ---
+            function populateDashboard() {
+                document.getElementById('dashboard-username').textContent = currentUser.username;
+                
+                const linkedAccountsContainer = document.getElementById('linked-accounts');
+                linkedAccountsContainer.innerHTML = '';
+                let totalBalance = 0;
+                currentUser.accounts.forEach(account => {
+                    totalBalance += account.balance;
+                    linkedAccountsContainer.innerHTML += `
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full ${account.logoColor} flex items-center justify-center text-white font-bold">${account.name.charAt(0)}</div>
+                                <div><p class="font-semibold text-gray-900 dark:text-white">${account.name}</p><p class="text-sm text-gray-500 dark:text-gray-400">${account.type}</p></div>
+                            </div><p class="font-semibold text-gray-800 dark:text-gray-200">${formatRupiah(account.balance)}</p>
+                        </div>`;
+                });
+                document.getElementById('total-balance').textContent = formatRupiah(totalBalance);
+
+                const recentTransactionsContainer = document.getElementById('recent-transactions');
+                recentTransactionsContainer.innerHTML = '';
+                currentUser.transactions.slice(0, 3).forEach(tx => recentTransactionsContainer.innerHTML += renderTransactionItem(tx));
+            }
+
+            function populateProfile() {
+                 document.getElementById('profile-page-username').textContent = currentUser.username;
+                 document.getElementById('profile-page-email').textContent = currentUser.profile.email;
+                 document.getElementById('profile-page-join-date').textContent = `Anggota sejak ${new Date(currentUser.profile.joinDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}`;
+                 document.getElementById('logout-button').addEventListener('click', handleLogout);
+                 setupDarkMode();
+            }
+
+            function populateHistory() {
+                const historyList = document.getElementById('full-history-list');
+                historyList.innerHTML = '';
+                currentUser.transactions.forEach(tx => historyList.innerHTML += renderTransactionItem(tx));
+            }
+            
+            function renderTransactionItem(tx) {
+                const isIncome = tx.type === 'income';
+                const iconBg = isIncome ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50';
+                const iconColor = isIncome ? 'text-green-500' : 'text-red-500';
+                const amountColor = isIncome ? 'text-green-500' : 'text-red-500';
+                const sign = isIncome ? '+' : '-';
+                const icon = isIncome ? 
+                    `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${iconColor}"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>` : 
+                    `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${iconColor}"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>`;
+                const txDate = new Date(tx.date).toLocaleString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour:'2-digit', minute: '2-digit'});
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full ${iconBg} flex items-center justify-center">${icon}</div>
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">${tx.name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${txDate}</p>
+                            </div>
+                        </div>
+                        <p class="font-semibold ${amountColor}">${sign}${formatRupiah(Math.abs(tx.amount))}</p>
+                    </div>`;
+            }
+
+            // --- QRIS Logic ---
+            function setupQrisPage() {
+                document.getElementById('simulate-scan-btn').addEventListener('click', simulateQrisScan);
+            }
+            
+            function simulateQrisScan() {
+                const merchants = ["Warung Kopi Senja", "Toko Buku Cerdas", "Supermarket Maju"];
+                const merchant = merchants[Math.floor(Math.random() * merchants.length)];
+                const amount = Math.floor(Math.random() * (2000 - 10) + 10) * 1000;
+
+                document.getElementById('qris-merchant-name').textContent = merchant;
+                document.getElementById('qris-payment-amount').textContent = formatRupiah(amount);
+                
+                // Generate QR Code
+                const qrValue = `QRIS.1.SST.ID.01.MERCHANT.${merchant.replace(/\s/g, '')}.02.12345.03.IDR${amount}`;
+                new QRious({
+                    element: document.getElementById('qris-code-canvas'),
+                    value: qrValue,
+                    size: 150,
+                    background: 'white',
+                    foreground: 'black',
+                    level: 'H'
+                });
+
+                qrisModal.style.display = 'flex';
+                qrisConfirmBtn.onclick = () => processQrisPayment(merchant, amount);
+            }
+            
+            function processQrisPayment(merchant, amount) {
+                // Find an account with enough balance
+                const sourceAccount = currentUser.accounts.find(acc => acc.balance >= amount && acc.type !== 'Kartu Elektronik');
+                if (!sourceAccount) {
+                    alert('Saldo tidak mencukupi di akun Bank atau E-Wallet Anda.');
+                    qrisModal.style.display = 'none';
+                    return;
+                }
+                
+                // Update balance
+                sourceAccount.balance -= amount;
+                
+                // Add new transaction
+                currentUser.transactions.unshift({
+                    id: Date.now(),
+                    name: `Pembayaran QRIS: ${merchant}`,
+                    date: new Date().toISOString(),
+                    amount: -amount,
+                    type: 'expense'
+                });
+                
+                // Save updated data
+                let masterData = getMasterData();
+                const userIndex = masterData.findIndex(u => u.username === currentUser.username);
+                masterData[userIndex] = currentUser;
+                saveMasterData(masterData);
+                
+                alert('Pembayaran berhasil!');
+                qrisModal.style.display = 'none';
+                showAppPage('dashboard');
+            }
+
+            // --- Event Handlers ---
+            function handleLogin(e) {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                const data = getMasterData();
+                const user = data.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    loginError.style.display = 'none';
+                    setLoggedInUser(username);
+                    currentUser = user;
+                    initializeApp();
+                } else {
+                    loginError.style.display = 'block';
+                }
+            }
+            
+            function handleRegister(e) {
+                e.preventDefault();
+                // ... (Registration logic can be expanded similarly)
+                alert('Fitur registrasi sedang dalam pengembangan.');
+            }
+            
+            function handleLogout() {
+                logoutUser();
+                showAuthPage('login');
+            }
+
+            // --- Initialization ---
+            function initializeApp() {
+                showAppPage('dashboard');
+            }
+
+            // --- Initial Load ---
+            initDefaultUser();
+            qrisCancelBtn.addEventListener('click', () => qrisModal.style.display = 'none');
+            gotoRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPage('register'); });
+            gotoLoginLink.addEventListener('click', (e) => { e.preventDefault(); showAuthPage('login'); });
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            
+            const loggedInUsername = getLoggedInUser();
+            if (loggedInUsername) {
+                currentUser = getMasterData().find(u => u.username === loggedInUsername);
+                if (currentUser) initializeApp();
+                else showAuthPage('login');
+            } else {
+                showAuthPage('login');
+            }
+        });
+    </script>
+</body>
+</html>

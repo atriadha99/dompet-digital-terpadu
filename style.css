@@ -1,0 +1,12 @@
+/* Menggunakan font Inter sebagai default */
+body {
+    font-family: 'Inter', sans-serif;
+}
+/* Style untuk scrollbar agar lebih minimalis */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
